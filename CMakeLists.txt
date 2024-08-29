@@ -12,6 +12,15 @@ include(.cmake/common.cmake)
 # Framework нам пока не нужен
 # include(.cmake/framework.cmake)
 
+# Настройка TurboVision под терминал
+#if(STM32)
+    set(TV_TERMINAL 1)
+    set(TV_BARE 1)
+#endif()
+
+set(TV_NO_FILESYSTEM 1)
+
+
 
 # Подсасываем библиотеки
 add_subdirectory("${LIB_ROOT}/tvision")
