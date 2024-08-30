@@ -540,6 +540,10 @@ function(fw_stm32_setup_mcu_options)
         list(APPEND MCU_LINK_OPTIONS    "-mfloat-abi=${MCU_FLOAT_ABI}")
     endif()
 
+    set(MCU_COMPILE_DEFINITIONS ${MCU_COMPILE_DEFINITIONS} PARENT_SCOPE)
+    set(MCU_COMPILE_OPTIONS     ${MCU_COMPILE_OPTIONS} PARENT_SCOPE)
+    set(MCU_LINK_OPTIONS        ${MCU_LINK_OPTIONS} PARENT_SCOPE)
+
 endfunction()
 
 
