@@ -8,6 +8,12 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 
+# Fill in the target MCU here
+# if(STM32)
+    set(MCU "STM32F429II")
+# endif()  # STM32
+
+
 include(.cmake/common.cmake)
 # Framework нам пока не нужен
 # include(.cmake/framework.cmake)
@@ -15,11 +21,17 @@ include(.cmake/common.cmake)
 # Настройка TurboVision под терминал
 #if(STM32)
     set(TV_TERMINAL 1)
-    set(TV_BARE 1)
 #endif()
 
-set(TV_NO_FILESYSTEM 1)
-
+if(STM32)
+    set(TV_BARE_METAL 1)
+    set(TV_NO_FILESYSTEM 1)
+    set(TV_NO_LOCALE_SUPPORT 1)
+    fw_stm32_setup_mcu_options()
+    set(TV_MCU_COMPILE_DEFINITIONS ${MCU_COMPILE_DEFINITIONS})
+    set(TV_MCU_COMPILE_OPTIONS     ${MCU_COMPILE_OPTIONS})
+    set(TV_MCU_LINK_OPTIONS        ${MCU_LINK_OPTIONS})
+endif()
 
 
 # Подсасываем библиотеки
@@ -65,28 +77,48 @@ message("Host Processor  : " ${CMAKE_HOST_SYSTEM_PROCESSOR})
 
 add_compile_definitions(${TV_DEFINITIONS})
 
-add_executable(example ${EXAMPLES}/progba/example.cpp ${EXAMPLES}/progba/tprogbar.cpp )
+
+if(STM32)
+    # Missing linker script cause 
+    # "examples/progba/example.cpp.obj:1: ignoring invalid character `\177' in script"
+    # "syntax error"
+    # "ld returned 1 exit status"
+    set(LINKER_SCRIPT "${SRC_ROOT}/scripts/STM32F429_no_bootloader.lds")
+
+endif()
+
+
+add_executable(example ${EXAMPLES}/progba/example.cpp ${EXAMPLES}/progba/tprogbar.cpp ${SRC_ROOT}/crt_stub.c)
 fw_add_target_options(example "UNICODE" "CONSOLE" "BIGOBJ"
                               #"BIN" "HEX"
                               # "FLASH"
                               )
 target_link_libraries(example PRIVATE "${COMMON_LIBS}")
+if(STM32)
+    target_compile_definitions(example PRIVATE "HSE_VALUE=16000000" "MCU_PLL_M=16" "MCU_PLL_Q=7" "MCU_PLL_N=360" "MCU_PLL_P=2")
+endif()
 
 
-add_executable(makerez ${EXAMPLES}/progba/makerez.cpp ${EXAMPLES}/progba/tprogbar.cpp )
+add_executable(makerez ${EXAMPLES}/progba/makerez.cpp ${EXAMPLES}/progba/tprogbar.cpp ${SRC_ROOT}/crt_stub.c)
 fw_add_target_options(makerez "UNICODE" "CONSOLE" "BIGOBJ"
                               #"BIN" "HEX"
                               # "FLASH"
                               )
 target_link_libraries(makerez PRIVATE "${COMMON_LIBS}")
+if(STM32)
+    target_compile_definitions(example PRIVATE "HSE_VALUE=16000000" "MCU_PLL_M=16" "MCU_PLL_Q=7" "MCU_PLL_N=360" "MCU_PLL_P=2")
+endif()
 
 
-add_executable(readrez ${EXAMPLES}/progba/readrez.cpp ${EXAMPLES}/progba/tprogbar.cpp )
+add_executable(readrez ${EXAMPLES}/progba/readrez.cpp ${EXAMPLES}/progba/tprogbar.cpp ${SRC_ROOT}/crt_stub.c)
 fw_add_target_options(readrez "UNICODE" "CONSOLE" "BIGOBJ"
                               #"BIN" "HEX"
                               # "FLASH"
                               )
 target_link_libraries(readrez PRIVATE "${COMMON_LIBS}")
+if(STM32)
+    target_compile_definitions(example PRIVATE "HSE_VALUE=16000000" "MCU_PLL_M=16" "MCU_PLL_Q=7" "MCU_PLL_N=360" "MCU_PLL_P=2")
+endif()
 
 
 

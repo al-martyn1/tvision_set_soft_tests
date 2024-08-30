@@ -454,8 +454,7 @@ endif()
 #stm32_generate_hex_file(TARGET)
 
 
-
-function(fw_stm32_setup_target_options TARGET)
+function(fw_stm32_setup_mcu_options)
 
     if(NOT MCU)
         message(FATAL_ERROR "MCU is not set")
@@ -486,6 +485,69 @@ function(fw_stm32_setup_target_options TARGET)
         message(FATAL_ERROR "MCU_FAMILY is not set")
     endif()
 
+    set(MCU_COMPILE_DEFINITIONS ${MCU})
+
+
+    if(${MCU_FAMILY} STREQUAL "F0")
+        set(MCU_CORE "cortex-m0")
+        list(APPEND MCU_COMPILE_DEFINITIONS "MCU_FAMILY_STM32F0")
+        # target_compile_definitions(${TARGET} PRIVATE "MCU_FAMILY_STM32F0")
+    elseif(${MCU_FAMILY} STREQUAL "F1")
+        set(MCU_CORE "cortex-m3")
+        # target_compile_definitions(${TARGET} PRIVATE "MCU_FAMILY_STM32F1")
+        list(APPEND MCU_COMPILE_DEFINITIONS "MCU_FAMILY_STM32F1")
+    elseif(${MCU_FAMILY} STREQUAL "F2")
+        set(MCU_CORE "cortex-m3")
+        # target_compile_definitions(${TARGET} PRIVATE "MCU_FAMILY_STM32F2")
+        list(APPEND MCU_COMPILE_DEFINITIONS "MCU_FAMILY_STM32F2")
+    elseif(${MCU_FAMILY} STREQUAL "F3")
+        set(MCU_CORE "cortex-m4")
+        set(MCU_FPU  "fpv4-sp-d16")
+        set(MCU_FLOAT_ABI "hard")
+        # target_compile_definitions(${TARGET} PRIVATE "MCU_FAMILY_STM32F3")
+        list(APPEND MCU_COMPILE_DEFINITIONS "MCU_FAMILY_STM32F3")
+    elseif(${MCU_FAMILY} STREQUAL "F4")
+        set(MCU_CORE "cortex-m4")
+        set(MCU_FPU  "fpv4-sp-d16")
+        set(MCU_FLOAT_ABI "hard")
+        # target_compile_definitions(${TARGET} PRIVATE "MCU_FAMILY_STM32F4")
+        list(APPEND MCU_COMPILE_DEFINITIONS "MCU_FAMILY_STM32F4")
+    else()
+        message(FATAL_ERROR "Unknown MCU_FAMILY: ${MCU_FAMILY}")
+    endif()
+
+    set(MCU_COMPILE_OPTIONS "--specs=nosys.specs" "-mcpu=${MCU_CORE}" "-mthumb")
+    set(MCU_LINK_OPTIONS    "-Wl,--no-warn-rwx-segments" "--specs=nosys.specs" "-mcpu=${MCU_CORE}" "-mthumb")
+
+    #target_link_options(${TARGET} PRIVATE "-Wl,--no-warn-rwx-segments")
+    #target_compile_options(${TARGET} PRIVATE "--specs=nosys.specs")
+    #target_link_options(${TARGET} PRIVATE "--specs=nosys.specs")
+
+    # target_compile_options(${TARGET} PRIVATE "-mcpu=${MCU_CORE}" "-mthumb")
+    # target_link_options(${TARGET} PRIVATE "-mcpu=${MCU_CORE}" "-mthumb")
+
+    if(MCU_FPU)
+        #target_compile_options(${TARGET} PRIVATE "-mfpu=${MCU_FPU}")
+        #target_link_options(${TARGET} PRIVATE "-mfpu=${MCU_FPU}")
+        list(APPEND MCU_COMPILE_OPTIONS "-mfpu=${MCU_FPU}")
+        list(APPEND MCU_LINK_OPTIONS    "-mfpu=${MCU_FPU}")
+    endif()
+
+    if(MCU_FLOAT_ABI)
+        #target_compile_options(${TARGET} PRIVATE "-mfloat-abi=${MCU_FLOAT_ABI}")
+        #target_link_options(${TARGET} PRIVATE "-mfloat-abi=${MCU_FLOAT_ABI}")
+        list(APPEND MCU_COMPILE_OPTIONS "-mfloat-abi=${MCU_FLOAT_ABI}")
+        list(APPEND MCU_LINK_OPTIONS    "-mfloat-abi=${MCU_FLOAT_ABI}")
+    endif()
+
+endfunction()
+
+
+function(fw_stm32_setup_target_options TARGET)
+
+    fw_stm32_setup_mcu_options()
+
+    #[[
     if(${MCU_FAMILY} STREQUAL "F0")
         set(MCU_CORE "cortex-m0")
         target_compile_definitions(${TARGET} PRIVATE "MCU_FAMILY_STM32F0")
@@ -508,10 +570,13 @@ function(fw_stm32_setup_target_options TARGET)
     else()
         message(FATAL_ERROR "Unknown MCU_FAMILY: ${MCU_FAMILY}")
     endif()
+    ]]
+
 
     #message(NOTICE "TARGET: ${TARGET}")
-    target_compile_definitions(${TARGET} PRIVATE "${MCU}")
+    # target_compile_definitions(${TARGET} PRIVATE "${MCU}")
 
+    #[[
     target_link_options(${TARGET} PRIVATE "-Wl,--no-warn-rwx-segments")
     target_compile_options(${TARGET} PRIVATE "--specs=nosys.specs")
     target_link_options(${TARGET} PRIVATE "--specs=nosys.specs")
@@ -528,6 +593,12 @@ function(fw_stm32_setup_target_options TARGET)
         target_compile_options(${TARGET} PRIVATE "-mfloat-abi=${MCU_FLOAT_ABI}")
         target_link_options(${TARGET} PRIVATE "-mfloat-abi=${MCU_FLOAT_ABI}")
     endif()
+    ]]
+
+    target_compile_definitions(${TARGET} PRIVATE ${MCU_COMPILE_DEFINITIONS})
+    target_compile_options(${TARGET} PRIVATE ${MCU_COMPILE_OPTIONS})
+    target_link_options(${TARGET} PRIVATE ${MCU_LINK_OPTIONS})
+
 
     # Про линкер скрипты - https://www.stf12.org/developers/freerots_ec-linker_script.html
     target_link_options(${TARGET} PRIVATE "-Wl,-T${LINKER_SCRIPT}")
