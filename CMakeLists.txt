@@ -20,11 +20,12 @@ include(.cmake/common.cmake)
 
 # Настройка TurboVision под терминал
 #if(STM32)
-    set(TV_TERMINAL 1)
+#    set(TV_TERMINAL 1)
 #endif()
 
 if(STM32)
     set(TV_BARE_METAL 1)
+    set(TV_TERMINAL 1)
     set(TV_NO_FILESYSTEM 1)
     set(TV_NO_LOCALE_SUPPORT 1)
     fw_stm32_setup_mcu_options()
@@ -88,7 +89,7 @@ if(STM32)
 endif()
 
 
-add_executable(example ${EXAMPLES}/progba/example.cpp ${EXAMPLES}/progba/tprogbar.cpp ${SRC_ROOT}/crt_stub.c)
+add_executable(example ${SRC_ROOT}/tv_test/example.cpp ${SRC_ROOT}/tv_test/tprogbar.cpp ) # ${SRC_ROOT}/crt_stub.c
 fw_add_target_options(example "UNICODE" "CONSOLE" "BIGOBJ"
                               #"BIN" "HEX"
                               # "FLASH"
@@ -99,7 +100,7 @@ if(STM32)
 endif()
 
 
-add_executable(makerez ${EXAMPLES}/progba/makerez.cpp ${EXAMPLES}/progba/tprogbar.cpp ${SRC_ROOT}/crt_stub.c)
+add_executable(makerez ${EXAMPLES}/progba/makerez.cpp ${EXAMPLES}/progba/tprogbar.cpp ) # ${SRC_ROOT}/crt_stub.c
 fw_add_target_options(makerez "UNICODE" "CONSOLE" "BIGOBJ"
                               #"BIN" "HEX"
                               # "FLASH"
@@ -110,7 +111,7 @@ if(STM32)
 endif()
 
 
-add_executable(readrez ${EXAMPLES}/progba/readrez.cpp ${EXAMPLES}/progba/tprogbar.cpp ${SRC_ROOT}/crt_stub.c)
+add_executable(readrez ${EXAMPLES}/progba/readrez.cpp ${EXAMPLES}/progba/tprogbar.cpp ) # ${SRC_ROOT}/crt_stub.c
 fw_add_target_options(readrez "UNICODE" "CONSOLE" "BIGOBJ"
                               #"BIN" "HEX"
                               # "FLASH"

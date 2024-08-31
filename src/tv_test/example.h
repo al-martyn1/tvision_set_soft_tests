@@ -38,6 +38,7 @@
 #define Uses_TStreamable
 #define Uses_TScreen
 #define Uses_TVCodePage
+#define Uses_TEmbedApplication
  
 #include <tv.h>
 
@@ -47,4 +48,4 @@
 
 
 extern void tvInitEmbedApp();
-extern void tvPollAppExecute();
+extern ushort tvPollAppExecute();

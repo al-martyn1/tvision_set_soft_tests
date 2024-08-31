@@ -43,7 +43,7 @@ private:
 
 TMyApplication::TMyApplication()
 : TProgInit( &TEmbedApplication::initStatusLine
-           , &TEmbedApplication::initMenuBar
+           , &TMyApplication::initMenuBar
            , &TEmbedApplication::initDeskTop
            )
 {
@@ -64,7 +64,7 @@ TMenuBar *TMyApplication::initMenuBar(TRect bounds)
 
 void TMyApplication::handleEvent(TEvent &event)
 {
-	 TApplication::handleEvent(event);
+	 TEmbedApplication::handleEvent(event);
 
 	 if (event.what == evCommand)
 	 {
@@ -209,27 +209,39 @@ void TMyApplication::cpCallBack(ushort *map)
 
 TMyApplication myApplication;
 
+const char *title = 0;
+
 void tvInitEmbedApp()
 {
 	 //TDisplay::setArgv(argc,argv,envir);
 	 TVCodePage::SetCallBack(TMyApplication::cpCallBack);
 
-     const char *title=TScreen::getWindowTitle();
+     title=TScreen::getWindowTitle();
 	 TScreen::setWindowTitle("Progress bar example");
+
+     myApplication.executeInit();
 }
 
-void tvPollAppExecute()
+ushort tvPollAppExecute()
 {
-    myApplication.executePoll();
+    return myApplication.executePoll();
 }
-         
-// 	 
-//  
-// 	 if(title) {
-// 		TScreen::setWindowTitle(title);
-// 		delete[] title;
-// 	 }
-//  
-// //	 return 0;
-// //}
-//  
+
+
+int main(int argc, char **argv, char **envir)
+{
+     TDisplay::setArgv(argc,argv,envir);  
+     tvInitEmbedApp();
+
+ 	 // endState = 0;
+
+     while(tvPollAppExecute()==0) {}
+
+ 	 if(title) {
+ 		TScreen::setWindowTitle(title);
+ 		delete[] title;
+ 	 }
+  
+	 return 0;
+}
+  

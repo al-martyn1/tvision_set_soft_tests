@@ -1,1 +1,0 @@
-@call %~dp0\tv_all_uses_sort_impl.bat >tv_all_uses.h
