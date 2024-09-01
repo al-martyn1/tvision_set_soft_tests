@@ -24,5 +24,5 @@ goto DO_CLONE
 set PREFIX=git@%BASE%:%ACC%
 
 :DO_CLONE
-git clone --recurse-submodules %PREFIX%/tvision.git   %~dp0\tvision
+git clone --recurse-submodules %PREFIX%/tvision_set_soft.git   %~dp0\tvision
 
